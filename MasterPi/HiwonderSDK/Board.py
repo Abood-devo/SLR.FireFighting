@@ -41,6 +41,14 @@ for i in range(RGB.numPixels()):
     RGB.setPixelColor(i, PixelColor(0,0,0))
     RGB.show()
 
+def turnOnLed(led_index, color_tuple):
+    """
+    turns on the expansion board two leds indexed as(0, 1)
+    with a color value
+    """
+    RGB.setPixelColor(led_index, PixelColor(color_tuple[0], color_tuple[1], color_tuple[2]))
+    RGB.show()
+
 def setMotor(index, speed):
     if index < 1 or index > 4:
         raise AttributeError("Invalid motor num: %d"%index)
@@ -73,7 +81,7 @@ def getMotor(index):
     index = index - 1
     return __motor_speed[index]
 
-def setPWMServoAngle(index, angle):
+def setPWMServoAngle(servo_id, angle):
     if servo_id < 1 or servo_id > 6:
         raise AttributeError("Invalid Servo ID: %d"%servo_id)
     index = servo_id - 1
@@ -156,7 +164,7 @@ def getPWMServoAngle(servo_id):
     if servo_id < 1 or servo_id > 6:
         raise AttributeError("Invalid Servo ID: %d"%servo_id)
     index = servo_id - 1
-    return __servo_pulse[index]
+    return __servo_angle[index]
 
 def getPWMServoPulse(servo_id):
     if servo_id < 1 or servo_id > 6:
@@ -186,6 +194,15 @@ def getBattery():
 def setBuzzer(new_state):
     GPIO.setup(31, GPIO.OUT)
     GPIO.output(31, new_state)
+
+def Buzz(timer):
+    """
+    start buzzing for the period of timer
+    """
+    setBuzzer(0)
+    setBuzzer(1)
+    time.sleep(timer)
+    setBuzzer(0)
 
 def setBusServoID(oldid, newid):
     """
@@ -377,6 +394,8 @@ def restBusServoPulse(oldid):
     serial_servo_set_deviation(oldid, 0)    # the deviation is cleared to 0
     time.sleep(0.1)
     serial_serro_wirte_cmd(oldid, LOBOT_SERVO_MOVE_TIME_WRITE, 500, 100)    # Middle position
+    
+    
 
 ##power off
 def unloadBusServo(id):
@@ -389,11 +408,3 @@ def getBusServoLoadStatus(id):
         msg = serial_servo_get_rmsg(LOBOT_SERVO_LOAD_OR_UNLOAD_READ)
         if msg is not None:
             return msg
-
-setBuzzer(0)
-
-# setMotor(1, 60)
-# setMotor(2, 60)
-# setMotor(3, 60)
-# setMotor(4, 60)
-
