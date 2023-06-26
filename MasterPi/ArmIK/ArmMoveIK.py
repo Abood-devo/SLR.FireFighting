@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # encoding:utf-8
 import sys
-sys.path.append('/home/pi/MasterPi/')
+sys.path.append('/home/pi/RAS.FireFighting/MasterPi/')
 import time
 import numpy as np
 from math import sqrt
@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from ArmIK.InverseKinematics import *
 from ArmIK.Transform import getAngle
 from mpl_toolkits.mplot3d import Axes3D
-from HiwonderSDK.Board import setBusServoPulse,getBusServoPulse, setPWMServoPulse, getPWMServoPulse
+from HiwonderSDK.Board import setBusServoPulse,getBusServoPulse, setPWMServoPulse, getPWMServoPulse, getPWMServoAngle, setPWMServoAngle
 
 ik = IK('arm')
 l1 = ik.l1
@@ -60,6 +60,20 @@ class ArmIK:
             return False
         return {"servo3": servo3, "servo4": servo4, "servo5": servo5, "servo6": servo6}
 
+    def jointMove(self, servo_id, positive, increment, limits, use_time):
+        """
+        moving a singel joint at a time relative to it's current position
+        """
+        cur_pos = getPWMServoAngle(servo_id) if servo_id == 5 or servo_id == 3 else getPWMServoPulse(servo_id)
+        print(cur_pos)
+        new_pos = cur_pos+increment if positive else cur_pos-increment
+        print(new_pos)
+        if new_pos > limits[0] and new_pos < limits[1] and not servo_id == 5 or not servo_id == 3:
+            setPWMServoPulse(servo_id, new_pos, use_time=use_time)
+            return
+        setPWMServoAngle(servo_id, new_pos)
+
+
     def servosMove(self, servos, movetime=None):
         time.sleep(0.02)
         if movetime is None:
@@ -109,6 +123,15 @@ class ArmIK:
         servos, alpha = data[0], data[1]
         movetime = self.servosMove((servos["servo3"], servos["servo4"], servos["servo5"], servos["servo6"]), movetime)
         return servos, alpha, movetime
+    
+    def getAllPWMAngels(self):
+        """
+        get the angel of the 4 servos
+        """
+        servos = {'servo3':3, 'servo4':4, 'servo5':5, 'servo6':6}
+        for ang, val in servos.items():
+            servos[ang] = getPWMServoAngle(val)
+        return servos
  
 if __name__ == "__main__":
     AK = ArmIK()

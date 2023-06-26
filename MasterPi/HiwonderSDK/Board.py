@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
-sys.path.append('/home/pi/MasterPi/')
+sys.path.append('/home/pi/RAS.FireFighting/MasterPi/')
 import time
 import yaml_handle
 import RPi.GPIO as GPIO
@@ -200,7 +200,7 @@ def Buzz(timer):
     start buzzing for the period of timer
     """
     setBuzzer(0)
-    setBuzzer(1)
+    # setBuzzer(1)
     time.sleep(timer)
     setBuzzer(0)
 

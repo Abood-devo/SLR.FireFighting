@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # coding=utf8
 import sys
-sys.path.append('/home/pi/MasterPi/')
+sys.path.append('/home/pi/RAS.FireFighting/MasterPi/')
 import math
 import threading
 import HiwonderSDK.Board as Board
@@ -77,3 +77,8 @@ class MecanumChassis:
         else:
             return self.set_velocity(velocity, direction, 0)
 
+    def stopMovement(self):
+        """
+        stop movement of the robot (all 4 motors)
+        """
+        self.set_velocity(0, 0, 0)

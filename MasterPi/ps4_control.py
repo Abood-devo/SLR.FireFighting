@@ -1,43 +1,65 @@
 #!/usr/bin/python3
 # coding=utf8
-import sys
-sys.path.append('/home/pi/MasterPi/')
-import time
 import HiwonderSDK.mecanum as mecanum
+import sys
+import time
+from itertools import cycle
 from HiwonderSDK import Board as brd
-from HiwonderSDK.Misc import map 
+from HiwonderSDK.Misc import map
 from ArmIK import ArmMoveIK as arm
 # from VisualPatrol import *
 from pyPS4Controller.controller import Controller
-
+sys.path.append('/home/pi/RAS.FireFighting/MasterPi/')
 
 chassis = mecanum.MecanumChassis()
 AK = arm.ArmIK()
 
+joint_angels = AK.getAllPWMAngels()
+
+servo = {'servo1': 1, 'servo3': 3, 'servo4': 4, 'servo5': 5, 'servo6': 6}
+
+joint_increments_p = [None, 10, None, 2, 10, 2, 10]
+
+joint_limits_p = [None, (500, 2500), None,
+                  (0, 180), (500, 2500), (0, 180), (500, 2500)]
+use_time = 100
+being_controlled_servo_id = 5
+to_control_servo_ids = [3, 4, 5]
+elems = cycle(to_control_servo_ids)
+
+
 def arm_init():
     brd.setPWMServoPulse(1, 1500, 1000)
-    brd.setPWMServoPulse(3, 1500, 1000)
-    brd.setPWMServoPulse(4, 1500, 1000)
-    brd.setPWMServoPulse(5, 1500, 1000)
+    brd.setPWMServoPulse(3, 500, 1000)
+    brd.setPWMServoPulse(4, 2500, 1000)
+    brd.setPWMServoPulse(5, 1040, 1000)
     brd.setPWMServoPulse(6, 1500, 1000)
 
+
 def exit_exec():
-        """
-        stop the execution of the script
-        """
-        brd.Buzz(timer=0.2)
-        time.sleep(0.1)
+    """
+    stop the execution of the script
+    """
+    # resting arm
+    brd.setPWMServoPulse(1, 1500, 1000)
+    brd.setPWMServoPulse(3, 2400, 1000)
+    brd.setPWMServoPulse(4, 2500, 1000)
+    brd.setPWMServoPulse(5, 2500, 1000)
+    brd.setPWMServoPulse(6, 1500, 1000)
 
-        brd.Buzz(timer=0.2)
-        time.sleep(0.1)
+    brd.Buzz(timer=0.2)
+    time.sleep(0.1)
 
-        brd.Buzz(timer=0.2)
-        time.sleep(0.1)
-        
-        print("exiting")
-        brd.turnOnLed(0, (255, 0, 0))
-        brd.turnOnLed(1, (255, 0, 0))
-        exit()
+    brd.Buzz(timer=0.2)
+    time.sleep(0.1)
+
+    brd.Buzz(timer=0.2)
+    time.sleep(0.1)
+    print("exiting")
+    brd.turnOnLed(0, (255, 0, 0))
+    brd.turnOnLed(1, (255, 0, 0))
+    exit()
+
 
 def on_connect():
     """
@@ -47,124 +69,173 @@ def on_connect():
     brd.turnOnLed(1, (0, 255, 0))
 
     brd.Buzz(timer=0.2)
-    time.sleep(0.1) 
+    time.sleep(0.1)
     brd.Buzz(timer=0.2)
     arm_init()
+
 
 class MyControllerRobot(Controller):
     def __init__(self, **kwargs):
         Controller.__init__(self, **kwargs)
-        self.x_value = 0
-        self.y_value = 0
-        self.z_value = 0
     # ------------------------ START Robot Movement ------------------------
+
     def on_R3_up(self, value):
         """
         moving forward
         """
         speed = map(abs(value), 0, 32767, 0, 100)
-        print(speed)
-        chassis.set_velocity(speed,90,0)
+        print(brd.getPWMServoAngle(6))
+        chassis.set_velocity(speed, 90, 0)
 
     def on_R3_down(self, value):
         """
         moving forward
         """
         speed = map(value, 0, 32767, 0, -100)
-        chassis.set_velocity(speed,90,0)
-    
+        chassis.set_velocity(speed, 90, 0)
+
     def on_R3_left(self, value):
         """
         turning left
         """
         rotational_speed = map(value, 0, 32767, 0, 2)
-        chassis.set_velocity(0,90,rotational_speed)
+        chassis.set_velocity(0, 90, rotational_speed)
 
     def on_R3_right(self, value):
         """
         turning right
         """
         rotational_speed = map(-1*value, 0, 32767, 0, -2)
-        chassis.set_velocity(0,90,rotational_speed)
+        chassis.set_velocity(0, 90, rotational_speed)
 
     def on_right_arrow_press(self):
         """
         sliding right
         """
-        chassis.set_velocity(60,0,0)
+        chassis.set_velocity(60, 0, 0)
 
     def on_left_arrow_press(self):
         """
         sliding left
         """
         chassis.set_velocity(60, 180, 0)
-    
+
     # Movement stopping functions
     def on_R3_x_at_rest(self):
         chassis.stopMovement()
+
     def on_R3_y_at_rest(self):
         chassis.stopMovement()
+
     def on_left_right_arrow_release(self):
         chassis.stopMovement()
     # ------------------------ END Robot Movement ------------------------
     # ------------------------ START Arm Movement ------------------------
+
     def on_R2_press(self, value):
+        servo_id = servo['servo1']
         if (value >= 0):
             grepping_deg = int(map(value, 0, 32767, 1400, 2500))
-            brd.setPWMServoPulse(1, grepping_deg,500)
+            brd.setPWMServoPulse(servo_id, grepping_deg, 500)
 
     def on_L3_left(self, value):
-        motor_pos = brd.getPWMServoPulse(6)
-        print(motor_pos-10)
-        brd.setPWMServoPulse(6, motor_pos-10, 80)
+        """
+        contolling servo 6 (base) positive
+        """
+        servo_id = servo['servo6']
+        AK.jointMove(servo_id=servo_id,
+                     positive=True,
+                     increment=joint_increments_p[servo_id],
+                     limits=joint_limits_p[servo_id],
+                     use_time=use_time)
 
     def on_L3_right(self, value):
-        motor_pos = brd.getPWMServoPulse(6)
-        print(motor_pos+10)
-        brd.setPWMServoPulse(6, motor_pos+8, 100)
+        """
+        contolling servo 6 (base) nigative
+        """
+        servo_id = servo['servo6']
+        AK.jointMove(servo_id=servo_id,
+                     positive=False,
+                     increment=joint_increments_p[servo_id],
+                     limits=joint_limits_p[servo_id],
+                     use_time=use_time)
 
+    # def on_L3_down(self, value):
+    #     """nigative"""
+    #     global being_controlled_servo_id
+    #     servo_id = being_controlled_servo_id
+    #     AK.jointMove(servo_id=servo_id,
+    #                  positive=False,
+    #                  increment=joint_increments_p[servo_id],
+    #                  limits=joint_limits_p[servo_id],
+    #                  use_time=use_time)
+
+    # def on_L3_up(self, value):
+    #     """positive"""
+    #     global being_controlled_servo_id
+    #     servo_id = being_controlled_servo_id
+    #     AK.jointMove(servo_id=servo_id,
+    #                  positive=True,
+    #                  increment=joint_increments_p[servo_id],
+    #                  limits=joint_limits_p[servo_id],
+    #                  use_time=use_time)
     def on_L3_down(self, value):
-        motor_pos = brd.getPWMServoPulse(5)
-        print(motor_pos+10)
-        brd.setPWMServoPulse(5, motor_pos+10, 80)
-    
+        current_pos = brd.getPWMServoAngle(3)
+        new_pos = current_pos-3
+        # if new_pos>0 and new_pos < 180:
+        brd.setPWMServoAngle(3, new_pos)
+
     def on_L3_up(self, value):
-        motor_pos = brd.getPWMServoPulse(5)
-        print(motor_pos-10)
-        brd.setPWMServoPulse(5, motor_pos-8, 100)  
-    
+        current_pos = brd.getPWMServoAngle(3)
+        new_pos = current_pos+3
+        # if new_pos>0 and new_pos < 180:
+        brd.setPWMServoAngle(3, new_pos)
+
+    def on_up_arrow_press(self):
+        global being_controlled_servo_id
+        being_controlled_servo_id = next(elems)
+
+    def on_down_arrow_press(self):
+        global being_controlled_servo_id
+        being_controlled_servo_id = next(elems)
+        # ------------------------ START arm macros ------------------------
+
     def on_R1_press(self):
         brd.setPWMServoPulse(1, 1500, 1000)
         brd.setPWMServoPulse(3, 500, 1000)
         brd.setPWMServoPulse(4, 2130, 1000)
         brd.setPWMServoPulse(5, 2382, 1000)
-        brd.setPWMServoPulse(6, 1500,1000)
+        brd.setPWMServoPulse(6, 1500, 1000)
 
     def on_L1_press(self):
         brd.setPWMServoPulse(3, 2500, 1000)
         brd.setPWMServoPulse(4, 829, 1000)
         brd.setPWMServoPulse(5, 1747, 1000)
-        brd.setPWMServoPulse(6, 1500,1000)
+        brd.setPWMServoPulse(6, 1500, 1000)
         time.sleep(1)
         brd.setPWMServoPulse(1, 2500, 500)
-
+        # ------------------------ END arm macros ------------------------
     # ------------------------ END ARM Movement ------------------------
-    
+
+    # ------------------------ START functionalities ------------------------
     def on_options_press(self):
+        """
+        stoping control
+        """
         exit_exec()
 
-    # switch to arm control
-    def on_playstation_button_press(self):
-        brd.Buzz(timer=0.2)
-        self.stop = True
-    
     def on_share_press(self):
-       ssss()
+        """
+        automation starter
+        """
+    #    ssss()
+    # ------------------------ END functionalities ------------------------
+
 
 if __name__ == '__main__':
     brd.Buzz(timer=0.2)
     brd.turnOnLed(0, (0, 0, 255))
     brd.turnOnLed(1, (0, 0, 255))
-    
-    controller_robot = MyControllerRobot(interface="/dev/input/js0", connecting_using_ds4drv=False)
+    controller_robot = MyControllerRobot(interface="/dev/input/js0",
+                                         connecting_using_ds4drv=False)
     controller_robot.listen(timeout=1000, on_connect=on_connect)
