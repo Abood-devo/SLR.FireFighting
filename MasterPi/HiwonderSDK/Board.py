@@ -200,7 +200,7 @@ def Buzz(timer):
     start buzzing for the period of timer
     """
     setBuzzer(0)
-    # setBuzzer(1)
+    setBuzzer(1)
     time.sleep(timer)
     setBuzzer(0)
 

@@ -3,7 +3,6 @@
 import HiwonderSDK.mecanum as mecanum
 import sys
 import time
-from itertools import cycle
 from HiwonderSDK import Board as brd
 from HiwonderSDK.Misc import map
 from ArmIK import ArmMoveIK as arm
@@ -18,14 +17,13 @@ joint_angels = AK.getAllPWMAngels()
 
 servo = {'servo1': 1, 'servo3': 3, 'servo4': 4, 'servo5': 5, 'servo6': 6}
 
-joint_increments_p = [None, 10, None, 2, 10, 2, 10]
+increments = [None, 10, None, 10, 14, 2, 10]
 
 joint_limits_p = [None, (500, 2500), None,
                   (0, 180), (500, 2500), (0, 180), (500, 2500)]
 use_time = 100
 being_controlled_servo_id = 5
 to_control_servo_ids = [3, 4, 5]
-elems = cycle(to_control_servo_ids)
 
 
 def arm_init():
@@ -78,13 +76,15 @@ class MyControllerRobot(Controller):
     def __init__(self, **kwargs):
         Controller.__init__(self, **kwargs)
     # ------------------------ START Robot Movement ------------------------
-
+    def on_circle_press(self):
+    	brd.setBuzzer(1)
+    def on_circle_realese(self):
+   	 brd.setBuzzer(0)
     def on_R3_up(self, value):
         """
         moving forward
         """
         speed = map(abs(value), 0, 32767, 0, 100)
-        print(brd.getPWMServoAngle(6))
         chassis.set_velocity(speed, 90, 0)
 
     def on_R3_down(self, value):
@@ -135,7 +135,13 @@ class MyControllerRobot(Controller):
     def on_R2_press(self, value):
         servo_id = servo['servo1']
         if (value >= 0):
-            grepping_deg = int(map(value, 0, 32767, 1400, 2500))
+            grepping_deg = int(map(value, 0, 32767, 1550, 2500))
+            brd.setPWMServoPulse(servo_id, grepping_deg, 500)
+
+    def on_L2_press(self, value):
+        servo_id = servo['servo3']
+        if (value >= 0):
+            grepping_deg = int(map(value, 0, 32767, 500, 2500))
             brd.setPWMServoPulse(servo_id, grepping_deg, 500)
 
     def on_L3_left(self, value):
@@ -145,7 +151,7 @@ class MyControllerRobot(Controller):
         servo_id = servo['servo6']
         AK.jointMove(servo_id=servo_id,
                      positive=True,
-                     increment=joint_increments_p[servo_id],
+                     increment=increments[servo_id],
                      limits=joint_limits_p[servo_id],
                      use_time=use_time)
 
@@ -156,48 +162,25 @@ class MyControllerRobot(Controller):
         servo_id = servo['servo6']
         AK.jointMove(servo_id=servo_id,
                      positive=False,
-                     increment=joint_increments_p[servo_id],
+                     increment=increments[servo_id],
                      limits=joint_limits_p[servo_id],
                      use_time=use_time)
 
-    # def on_L3_down(self, value):
-    #     """nigative"""
-    #     global being_controlled_servo_id
-    #     servo_id = being_controlled_servo_id
-    #     AK.jointMove(servo_id=servo_id,
-    #                  positive=False,
-    #                  increment=joint_increments_p[servo_id],
-    #                  limits=joint_limits_p[servo_id],
-    #                  use_time=use_time)
-
-    # def on_L3_up(self, value):
-    #     """positive"""
-    #     global being_controlled_servo_id
-    #     servo_id = being_controlled_servo_id
-    #     AK.jointMove(servo_id=servo_id,
-    #                  positive=True,
-    #                  increment=joint_increments_p[servo_id],
-    #                  limits=joint_limits_p[servo_id],
-    #                  use_time=use_time)
-    def on_L3_down(self, value):
-        current_pos = brd.getPWMServoAngle(3)
-        new_pos = current_pos-3
-        # if new_pos>0 and new_pos < 180:
-        brd.setPWMServoAngle(3, new_pos)
-
-    def on_L3_up(self, value):
-        current_pos = brd.getPWMServoAngle(3)
-        new_pos = current_pos+3
-        # if new_pos>0 and new_pos < 180:
-        brd.setPWMServoAngle(3, new_pos)
+    def on_down_arrow_press(self):
+        servo_id = servo['servo4']
+        brd.setPWMServoAngle(servo_id, brd.getPWMServoAngle(servo_id)-increments[servo_id])
 
     def on_up_arrow_press(self):
-        global being_controlled_servo_id
-        being_controlled_servo_id = next(elems)
+        servo_id = servo['servo4']
+        brd.setPWMServoAngle(servo_id, brd.getPWMServoAngle(servo_id)+increments[servo_id])
 
-    def on_down_arrow_press(self):
-        global being_controlled_servo_id
-        being_controlled_servo_id = next(elems)
+    def on_L3_down(self, value):
+        servo_id = servo['servo5']
+        brd.setPWMServoAngle(servo_id, brd.getPWMServoAngle(servo_id)-increments[servo_id])
+
+    def on_L3_up(self, value):
+        servo_id = servo['servo5']
+        brd.setPWMServoAngle(servo_id, brd.getPWMServoAngle(servo_id)+increments[servo_id])
         # ------------------------ START arm macros ------------------------
 
     def on_R1_press(self):

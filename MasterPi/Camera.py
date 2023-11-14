@@ -63,13 +63,13 @@ class Camera:
                     else:
                         print(1)
                         self.frame = None
-                        cap = cv2.VideoCapture(-1)
+                        cap = cv2.VideoCapture(0)
                         ret, _ = cap.read()
                         if ret:
                             self.cap = cap
                 elif self.opened:
                     print(2)
-                    cap = cv2.VideoCapture(-1)
+                    cap = cv2.VideoCapture(0)
                     ret, _ = cap.read()
                     if ret:
                         self.cap = cap              
