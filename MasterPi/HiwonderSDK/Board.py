@@ -28,6 +28,10 @@ __i2c_addr = 0x7A
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 
+__PUMB_PIN = 22
+
+
+
 __RGB_COUNT = 2
 __RGB_PIN = 12
 __RGB_FREQ_HZ = 800000
@@ -40,6 +44,9 @@ RGB.begin()
 for i in range(RGB.numPixels()):
     RGB.setPixelColor(i, PixelColor(0,0,0))
     RGB.show()
+def pumb_sig():
+    GPIO.setup(__PUMB_PIN, GPIO.OUT)
+    GPIO.output(__PUMB_PIN, GPIO.HIGH)
 
 def turnOnLed(led_index, color_tuple):
     """
