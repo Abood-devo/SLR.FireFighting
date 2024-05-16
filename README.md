@@ -1,6 +1,6 @@
 # SLR - Fire Fighting Robot
 
-![SLR Logo](https://github.com/Abood-devo/SLR.FireFighting/blob/main/images/logo-placeholder.png)
+<img src="images/SLR-logo/default.png" alt="SLR Logo" width="300" height="auto">
 
 ## Overview
 
@@ -17,21 +17,22 @@ SLR is a robot designed to participate in the Fire Fighting Robots Contest. It w
 
 ### 1. Chassis
 
-![Chassis Image](https://github.com/Abood-devo/SLR.FireFighting/blob/main/images/chassis-placeholder.png)
+<img src="dimentions/robot-chasis-dimensions.png" alt="Chassis Image" width="500" height="auto">
 
 - Houses all the components.
 - Equipped with four mecanum wheels for 360-degree movement.
 
 ### 2. Arm
 
-![Arm Image](https://github.com/Abood-devo/SLR.FireFighting/blob/main/images/arm-placeholder.png)
+<img src="images/snippits/robot-arm.png" alt="Arm Image" width="500" height="auto">
+
 
 - Features five servo motors to control each joint.
 - Capable of collecting ping pong balls and extinguishing candles.
 
 ### 3. Computer
 
-![Computer Image](https://github.com/Abood-devo/SLR.FireFighting/blob/main/images/computer-placeholder.png)
+![Computer Image](https://assets.raspberrypi.com/static/raspberry-pi-4-labelled-f5e5dcdf6a34223235f83261fa42d1e8.png)
 
 - Raspberry Pi 4 B+.
 - Manages all signals and processes tasks efficiently.
@@ -41,19 +42,21 @@ SLR is a robot designed to participate in the Fire Fighting Robots Contest. It w
 
 ### 1. Collecting Ping Pong Balls
 
-![Ping Pong Collection](https://github.com/Abood-devo/SLR.FireFighting/blob/main/images/ping-pong-placeholder.png)
+<img src="images/snippits/Ping-Pong-Collection.jpg" alt="Ping Pong Collection" width="500" height="auto" style="border-radius: 10%">
 
 SLR collects ping pong balls to simulate rescuing people. The arm's precise movements allow it to pick up and place the balls in designated areas.
 
 ### 2. Extinguishing Candles
 
-![Extinguishing Candles](https://github.com/Abood-devo/SLR.FireFighting/blob/main/images/candles-placeholder.png)
+<img src="images/snippits/extinguishing-candles.png" alt="Extinguishing Candles" width="500" height="auto">
+<!-- ![Extinguishing Candles](https://github.com/Abood-devo/SLR.FireFighting/blob/main/images/candles-placeholder.png) -->
 
 The robot extinguishes candles to simulate remote fire suppression. The arm accurately targets and extinguishes the flames.
 
 ### 3. Navigating Diverse Terrains
 
-![Navigating Terrains](https://github.com/Abood-devo/SLR.FireFighting/blob/main/images/terrain-placeholder.png)
+<img src="images/snippits/Navigating-Diverse-Terrains.png" alt="Navigating Terrains" width="500" height="auto" style="border-radius: 10%">
+<!-- ![Navigating Terrains](https://github.com/Abood-devo/SLR.FireFighting/blob/main/images/terrain-placeholder.png) -->
 
 SLR navigates through hills, grass, and bumps using its mecanum wheels and robust chassis design.
 
@@ -63,6 +66,7 @@ SLR navigates through hills, grass, and bumps using its mecanum wheels and robus
 - **Latency Issues**: The delay between the camera and the Raspberry Pi prevented us from implementing a computer vision algorithm for autonomous fire detection.
 
 ## Achievements
+<img src="images/snippits/2nd-place-winner.jpg" alt="2nd place winner" width="500" height="auto" style="border-radius: 10%">
 
 - **2nd Place**: Secured 2nd place in the 4th Fire Fighting Contest, outperforming 17 other university teams.
 
